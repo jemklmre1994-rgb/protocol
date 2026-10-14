@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FI CREDENTIALS PROTOCOL</title>
+<style>
+  :root {
+    --bg: #080d16;
+    --panel: #111b2b;
+    --panel2: #142238;
+    --blue: #42a5ff;
+    --blue-light: #9bd2ff;
+    --gold: #f2c14e;
+    --green: #35d07f;
+    --red: #ff626d;
+    --text: #f4f7fb;
+    --muted: #bdc9d8;
+    --line: #7291b4;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 32px 18px 48px;
+    color: var(--text);
+    background: radial-gradient(ellipse at top, #14253e 0%, var(--bg) 60%);
+    font-family: "Segoe UI", Arial, sans-serif;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 28px; }
+  h1 {
+    color: var(--blue);
+    letter-spacing: .08em;
+    font-size: clamp(1.65rem, 4vw, 2.7rem);
+    margin: 0 0 8px;
+    text-shadow: 0 0 22px #1689ff40;
+  }
+  .subtitle { color: var(--muted); margin: 0; }
+  .flow { display: flex; flex-direction: column; align-items: center; gap: 0; }
+  .node {
+    width: min(760px, 100%);
+    padding: 19px 23px;
+    background: linear-gradient(145deg, var(--panel2), var(--panel));
+    border: 2px solid var(--blue);
+    border-radius: 14px;
+    box-shadow: 0 10px 28px #0005;
+    text-align: center;
+  }
+  .node h2 { font-size: 1.1rem; color: var(--blue-light); margin: 0 0 10px; }
+  .node p { line-height: 1.55; margin: 7px 0; }
+  .node a { color: #80c7ff; font-weight: 650; text-underline-offset: 3px; }
+  .node a:hover { color: #c4e7ff; }
+  .step { display: inline-block; color: #08111c; background: var(--blue); font-weight: 800; border-radius: 6px; padding: 3px 8px; margin-right: 7px; }
+  .arrow { color: var(--line); font-size: 2rem; line-height: 1.3; height: 40px; display: flex; align-items: center; justify-content: center; }
+  .decision { border-color: var(--gold); max-width: 600px; border-radius: 18px; }
+  .decision h2 { color: var(--gold); }
+  .branches { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 26px; align-items: start; margin-top: 2px; }
+  .branch { display: flex; flex-direction: column; align-items: center; min-width: 0; }
+  .branch-label { font-weight: 900; letter-spacing: .12em; font-size: 1rem; padding: 6px 17px; border-radius: 999px; margin-bottom: 12px; }
+  .yes { color: #06170e; background: var(--green); }
+  .no { color: #26070a; background: var(--red); }
+  .yes-node { border-color: var(--green); width: 100%; }
+  .yes-node h2 { color: var(--green); }
+  .no-node { border-color: var(--red); width: 100%; }
+  .no-node h2 { color: var(--red); }
+  .mini-arrow { color: var(--line); font-size: 1.7rem; line-height: 1.5; }
+  .yes-path { width: 100%; display: flex; flex-direction: column; align-items: center; }
+  .end { width: min(330px, 100%); border-color: var(--green); border-radius: 999px; padding: 13px; text-align: center; background: #102a20; font-weight: 900; letter-spacing: .12em; }
+  .password-settings { display: inline-block; text-align: left; margin: 10px auto; padding: 10px 14px; border-radius: 10px; background: #0b1726; }
+  .check { color: var(--green); font-weight: 900; font-size: 1.08em; }
+  .rule { margin-top: 30px; padding: 15px 18px; border: 1px solid #58708e; background: #0d1725; border-radius: 12px; color: var(--muted); text-align: center; }
+  .rule strong { color: #f5d778; }
+  .foot { text-align: center; color: #8395aa; font-size: .84rem; margin-top: 18px; }
+  @media (max-width: 700px) {
+    body { padding: 22px 12px 32px; }
+    .branches { grid-template-columns: 1fr; gap: 24px; }
+    .node { padding: 16px; }
+  }
+  @media print {
+    body { background: #080d16 !important; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    .node, .rule { break-inside: avoid; }
+    a { color: #80c7ff !important; }
+  }
+
+  .email-gate { max-width:460px; margin:30px auto; padding:25px; text-align:center;
+    background:linear-gradient(145deg,var(--panel2),var(--panel)); border:2px solid var(--blue);
+    border-radius:14px; box-shadow:0 10px 28px #0005; }
+  .email-gate h2 { color:var(--blue-light); margin-top:0; }
+  .email-gate p { color:var(--muted); line-height:1.5; }
+  .email-gate input { width:100%; padding:13px; margin:12px 0; border:1px solid var(--line);
+    border-radius:7px; background:var(--bg); color:var(--text); font-size:1rem; }
+  .email-gate button { width:100%; padding:13px; border:none; border-radius:7px;
+    background:var(--blue); color:#08111c; font-weight:800; cursor:pointer; }
+  .email-gate button:hover { background:var(--blue-light); }
+  #emailMessage { color:var(--red); font-weight:600; min-height:1.2em; }
+  #protocolContent[hidden], #emailGate[hidden] { display:none !important; }
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="email-gate" id="emailGate">
+    <h2>FI CREDENTIALS PROTOCOL</h2>
+    <p>Enter your authorized work email address to continue to the flowchart.</p>
+    <form id="emailForm">
+      <input type="email" id="authorizedEmail" placeholder="Enter your work email address" autocomplete="email" aria-label="Work email address" required>
+      <button type="submit">CONFIRM EMAIL &amp; CONTINUE</button>
+      <p id="emailMessage" role="alert" aria-live="polite"></p>
+    </form>
+  </section>
+  <div id="protocolContent" hidden>
+  <header>
+    <h1>FI CREDENTIALS PROTOCOL</h1>
+    <p class="subtitle">Follow the sequence below. Only QA-qualified interviewers may proceed to credential generation.</p>
+  </header>
+
+  <main class="flow">
+    <section class="node">
+      <h2><span class="step">1</span> CREATE PROJECT FOLDER</h2>
+      <p>Create a folder named after the given <strong>PROJECT</strong> in SharePoint.</p>
+      <p><a href="https://psrccomph-my.sharepoint.com/:f:/g/personal/dboy_esteral_psrc_com_ph/IgCly_GVORQ6T4Pdeyd6yikoAQrhih27jthSX7n2BpAhVT0" target="_blank" rel="noopener noreferrer">OPEN PROJECT FOLDER ↗</a></p>
+    </section>
+    <div class="arrow" aria-hidden="true">↓</div>
+
+    <section class="node">
+      <h2><span class="step">2</span> COMPLETE CREDENTIALS TEMPLATE</h2>
+      <p>Copy/paste <strong>CREDENTIALS TEMPLATE SCRIPTING ONLY</strong> into the PROJECT folder.</p>
+      <p>Open the copied folder and fill in all required details and data.</p>
+    </section>
+    <div class="arrow" aria-hidden="true">↓</div>
+
+    <section class="node decision">
+      <h2><span class="step" style="background:var(--gold)">3</span> QA CHECK</h2>
+      <p>Is the interviewer qualified by QA?</p>
+    </section>
+
+    <div class="branches">
+      <section class="branch">
+        <div class="branch-label no">NO</div>
+        <div class="node no-node">
+          <h2>HOLD</h2>
+          <p><strong>Do NOT generate passwords</strong> for unqualified interviewers.</p>
+          <p>Stop until qualification is confirmed.</p>
+        </div>
+      </section>
+
+      <section class="branch">
+        <div class="branch-label yes">YES</div>
+        <div class="yes-path">
+          <div class="mini-arrow" aria-hidden="true">↓</div>
+          <section class="node yes-node">
+            <h2><span class="step" style="background:var(--green)">4</span> SET USERNAME AND GROUPNAME</h2>
+            <p><strong>USERNAME</strong> = PROJECT identifier + first letter of interviewer’s name + surname</p>
+            <p>Example: <code>zenith_jdequiroz</code></p>
+            <p><strong>GROUPNAME</strong> = PROJECT NAME + <code>_</code> + TAGGING</p>
+            <p>Example: <code>zenith_min</code></p>
+            <p>Use the highlighted legend in the template to select <strong>TAGGING</strong>.</p>
+          </section>
+          <div class="mini-arrow" aria-hidden="true">↓</div>
+          <section class="node yes-node">
+            <h2><span class="step" style="background:var(--green)">5</span> GENERATE PASSWORD(S)</h2>
+            <p><a href="https://www.strongpasswordgenerator.org/" target="_blank" rel="noopener noreferrer">OPEN STRONG PASSWORD GENERATOR ↗</a></p>
+            <div class="password-settings">
+              <p><strong>Advanced settings</strong></p>
+              <p>Length: <strong>12</strong></p>
+              <p>Begins With: <strong>A–Z</strong></p>
+              <p>No Duplicate Characters</p>
+              <p><span class="check">✓</span> Alpha Upper (A–Z)</p>
+              <p><span class="check">✓</span> Number (0–9)</p>
+              <p><span class="check">✓</span> Symbol: <code>@</code></p>
+            </div>
+            <p>Generate <strong>one password for each QA-qualified interviewer</strong>.</p>
+          </section>
+          <div class="mini-arrow" aria-hidden="true">↓</div>
+          <div class="end">NEXT STEP: STG CONFIGURATION</div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <aside class="rule"><strong>PROTOCOL RULE:</strong> Only QA-qualified interviewers proceed to username/groupname setup and password generation.</aside>
+  <p class="foot">FI Credentials Protocol · Use the linked resources and follow all QA checks before generating passwords.</p>
+  </div>
+</div>
+
+<script>
+/* This client-side email check is a basic gate, not secure authentication or inbox verification.
+   For real email confirmation, use a server-side one-time code or trusted identity provider. */
+const allowedEmails = [
+  "jem.dequiroz@psrc-ops.com.ph",
+  "edward.medrano@psrc-ops.com.ph",
+  "dboy.esteral@psrc.com.ph",
+  "michelle.vicente@psrc.com.ph"
+];
+document.getElementById("emailForm").addEventListener("submit", function(event) {
+  event.preventDefault();
+  const email = document.getElementById("authorizedEmail").value.trim().toLowerCase();
+  const message = document.getElementById("emailMessage");
+  if (allowedEmails.includes(email)) {
+    message.textContent = "";
+    document.getElementById("emailGate").hidden = true;
+    document.getElementById("protocolContent").hidden = false;
+    document.getElementById("protocolContent").scrollIntoView({behavior:"smooth", block:"start"});
+  } else {
+    message.textContent = "Access denied. This email is not on the authorized list.";
+  }
+});
+</script>
+
+</body>
+</html>
